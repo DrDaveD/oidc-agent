@@ -18,6 +18,7 @@
 // TOKEN RESPONSE KEYS
 #define OIDC_KEY_EXPIRESIN "expires_in"
 #define OIDC_KEY_ACCESSTOKEN "access_token"
+#define OIDC_KEY_IDTOKEN "id_token"
 #define OIDC_KEY_REFRESHTOKEN "refresh_token"
 
 // REQUEST KEYS

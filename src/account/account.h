@@ -9,29 +9,50 @@
 #include <stdlib.h>
 #include <time.h>
 
-struct token {
+struct access_token {
   char*         access_token;
   unsigned long token_expires_at;
 };
 
-struct oidc_account {
-  struct oidc_issuer* issuer;
-  char*               shortname;
-  char*               clientname;
-  char*               client_id;
-  char*               client_secret;
-  char*               scope;
-  char*               username;
-  char*               password;
+struct tokens {
   char*               refresh_token;
-  struct token        token;
-  char*               cert_path;
-  list_t*             redirect_uris;
-  char*               usedState;
-  unsigned char       usedStateChecked;
-  time_t              death;
-  char*               code_challenge_method;
-  unsigned char       mode;
+  char*               id_token;
+  struct access_token at;
+};
+
+struct client_credentials {
+  char* client_id;
+  char* client_secret;
+};
+
+struct account_internal {
+  char*         usedState;
+  unsigned char usedStateChecked;
+  time_t        death;
+  char*         code_challenge_method;
+  unsigned char mode;
+};
+
+struct client_data {
+  char*                     clientname;
+  list_t*                   redirect_uris;
+  char*                     scope;
+  struct client_credentials client_credentials;
+};
+
+struct account_credentials {
+  char* username;
+  char* password;
+};
+
+struct oidc_account {
+  struct oidc_issuer*        issuer;
+  char*                      shortname;
+  struct client_data         client_data;
+  struct tokens              tokens;
+  char*                      cert_path;
+  struct account_credentials account_credentials;
+  struct account_internal    internal;
 };
 
 #define ACCOUNT_MODE_CONFIRM 0x01

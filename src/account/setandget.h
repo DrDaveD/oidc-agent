@@ -23,6 +23,7 @@ char* account_getUsername(const struct oidc_account* p);
 char* account_getPassword(const struct oidc_account* p);
 char* account_getRefreshToken(const struct oidc_account* p);
 char* account_getAccessToken(const struct oidc_account* p);
+char* account_getIdToken(const struct oidc_account* p);
 unsigned long account_getTokenExpiresAt(const struct oidc_account* p);
 char*         account_getCertPath(const struct oidc_account* p);
 list_t*       account_getRedirectUris(const struct oidc_account* p);
@@ -47,6 +48,7 @@ void account_setUsername(struct oidc_account* p, char* username);
 void account_setPassword(struct oidc_account* p, char* password);
 void account_setRefreshToken(struct oidc_account* p, char* refresh_token);
 void account_setAccessToken(struct oidc_account* p, char* access_token);
+void account_setIdToken(struct oidc_account* p, char* id_token);
 void account_setTokenExpiresAt(struct oidc_account* p,
                                unsigned long        token_expires_at);
 void account_setCertPath(struct oidc_account* p, char* cert_path);

@@ -63,7 +63,7 @@ void defaultErrorHandling(const char* error, const char* error_description) {
 char* parseTokenResponseCallbacks(
     const char* res, struct oidc_account* a, int saveAccessToken,
     void (*errorHandling)(const char*, const char*), struct ipcPipe pipes) {
-  INIT_KEY_VALUE(OIDC_KEY_ACCESSTOKEN, OIDC_KEY_REFRESHTOKEN,
+  INIT_KEY_VALUE(OIDC_KEY_ACCESSTOKEN, OIDC_KEY_IDTOKEN, OIDC_KEY_REFRESHTOKEN,
                  OIDC_KEY_EXPIRESIN, OIDC_KEY_ERROR,
                  OIDC_KEY_ERROR_DESCRIPTION);
   if (CALL_GETJSONVALUES(res) < 0) {
@@ -71,7 +71,7 @@ char* parseTokenResponseCallbacks(
     SEC_FREE_KEY_VALUES();
     return NULL;
   }
-  KEY_VALUE_VARS(access_token, refresh_token, expires_in, error,
+  KEY_VALUE_VARS(access_token, id_token, refresh_token, expires_in, error,
                  error_description);
   if (_error || _error_description) {
     errorHandling(_error, _error_description);
@@ -100,6 +100,9 @@ char* parseTokenResponseCallbacks(
   }
   if (saveAccessToken) {
     account_setAccessToken(a, _access_token);
+  }
+  if (_id_token) {
+    account_setIdToken(a, _id_token);
   }
   return _access_token;
 }

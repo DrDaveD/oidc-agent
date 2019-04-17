@@ -437,7 +437,7 @@ void oidcd_handleTokenIssuer(struct ipcPipe pipes, char* issuer,
     return;
   }
   ipc_writeToPipe(pipes, RESPONSE_STATUS_ACCESS, STATUS_SUCCESS, access_token,
-                  account_getIssuerUrl(account),
+                  account_getIdToken(account), account_getIssuerUrl(account),
                   account_getTokenExpiresAt(account));
   if (strValid(scope)) {
     secFree(access_token);
@@ -491,7 +491,7 @@ void oidcd_handleToken(struct ipcPipe pipes, char* short_name,
     return;
   }
   ipc_writeToPipe(pipes, RESPONSE_STATUS_ACCESS, STATUS_SUCCESS, access_token,
-                  account_getIssuerUrl(account),
+                  account_getIdToken(account), account_getIssuerUrl(account),
                   account_getTokenExpiresAt(account));
   if (strValid(scope)) {
     secFree(access_token);
@@ -650,7 +650,7 @@ void oidcd_handleCodeExchange(struct ipcPipe pipes, const char* redirected_uri,
     secFree(cee->code_verifier);
     if (fromGen) {
       termHttpServer(cee->state);
-      account->usedStateChecked = 1;
+      account->internal.usedStateChecked = 1;
     }
     account_setUsedState(account, cee->state);
     codeVerifierDB_removeIfFound(cee);
@@ -703,7 +703,7 @@ void oidcd_handleDeviceLookup(struct ipcPipe pipes, const char* account_json,
 
 void oidcd_handleStateLookUp(struct ipcPipe pipes, char* state) {
   syslog(LOG_AUTHPRIV | LOG_DEBUG, "Handle stateLookUp request");
-  struct oidc_account key = {.usedState = state};
+  struct oidc_account key = {.internal.usedState = state};
   matchFunction       oldMatch =
       accountDB_setMatchFunction((matchFunction)account_matchByState);
   struct oidc_account* account = db_getAccountDecrypted(&key);
@@ -715,14 +715,14 @@ void oidcd_handleStateLookUp(struct ipcPipe pipes, char* state) {
     secFree(info);
     return;
   }
-  if (account->usedStateChecked) {
+  if (account->internal.usedStateChecked) {
     ipc_writeToPipe(pipes, RESPONSE_STATUS_INFO, STATUS_FOUNDBUTDONE,
                     "Account config already retrieved from another oidc-gen");
     db_addAccountEncrypted(account);  // reencrypting
     return;
   }
-  account->usedStateChecked = 1;
-  char* config              = accountToJSONString(account);
+  account->internal.usedStateChecked = 1;
+  char* config                       = accountToJSONString(account);
   ipc_writeToPipe(pipes, RESPONSE_STATUS_CONFIG, STATUS_SUCCESS, config);
   secFree(config);
   db_addAccountEncrypted(account);  // reencrypting
