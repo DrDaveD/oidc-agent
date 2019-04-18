@@ -17,6 +17,7 @@ struct oidc_issuer {
   char*                                revocation_endpoint;
   char*                                registration_endpoint;
   struct device_authorization_endpoint device_authorization_endpoint;
+  char*                                jwks_url;
 
   char* scopes_supported;          // space delimited
   char* grant_types_supported;     // as json array

@@ -16,7 +16,7 @@ struct access_token {
 
 struct tokens {
   char*               refresh_token;
-  char*               id_token;
+  char*               id_token;  // not used
   struct access_token at;
 };
 
