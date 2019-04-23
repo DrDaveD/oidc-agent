@@ -65,9 +65,9 @@
   "{\"" IPC_KEY_STATUS "\":\"" STATUS_SUCCESS "\"}"
 #define RESPONSE_STATUS_CONFIG \
   "{\"" IPC_KEY_STATUS "\":\"%s\",\"" IPC_KEY_CONFIG "\":%s}"
-#define RESPONSE_STATUS_ACCESS                                                \
-  "{\"" IPC_KEY_STATUS "\":\"%s\",\"" OIDC_KEY_ACCESSTOKEN                    \
-  "\":\"%s\",\"" OIDC_KEY_IDTOKEN "\":\"%s\",\"" OIDC_KEY_ISSUER "\":\"%s\"," \
+#define RESPONSE_STATUS_ACCESS                             \
+  "{\"" IPC_KEY_STATUS "\":\"%s\",\"" OIDC_KEY_ACCESSTOKEN \
+  "\":\"%s\",\"" OIDC_KEY_ISSUER "\":\"%s\","              \
   "\"" AGENT_KEY_EXPIRESAT "\":%lu}"
 #define RESPONSE_STATUS_REGISTER \
   "{\"" IPC_KEY_STATUS "\":\"%s\",\"response\":%s}"

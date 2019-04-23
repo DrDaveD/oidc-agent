@@ -60,6 +60,72 @@ void defaultErrorHandling(const char* error, const char* error_description) {
   secFree(error_str);
 }
 
+#define TOKENPARSEMODE_AT 0x01
+#define TOKENPARSEMODE_ATS 0x02
+#define TOKENPARSEMODE_RT 0x04
+#define TOKENPARSEMODE_IDT 0x08
+
+char* _parseTokenResponse(const char* res, struct oidc_account* a,
+                          const int mode,
+                          void (*errorHandling)(const char*, const char*),
+                          const struct ipcPipe pipes) {
+  if (res == NULL || a == NULL || mode == 0) {
+    oidc_setArgNullFuncError(__func__);
+    return NULL;
+  }
+  INIT_KEY_VALUE(OIDC_KEY_ACCESSTOKEN, OIDC_KEY_IDTOKEN, OIDC_KEY_REFRESHTOKEN,
+                 OIDC_KEY_EXPIRESIN, OIDC_KEY_ERROR,
+                 OIDC_KEY_ERROR_DESCRIPTION);
+  if (CALL_GETJSONVALUES(res) < 0) {
+    syslog(LOG_AUTHPRIV | LOG_ERR, "Error while parsing json\n");
+    SEC_FREE_KEY_VALUES();
+    return NULL;
+  }
+  KEY_VALUE_VARS(access_token, id_token, refresh_token, expires_in, error,
+                 error_description);
+  if (_error || _error_description) {
+    errorHandling(_error, _error_description);
+    SEC_FREE_KEY_VALUES();
+    return NULL;
+  }
+  char* refresh_token = account_getRefreshToken(a);
+  if (mode & TOKENPARSEMODE_RT && strValid(_refresh_token) &&
+      !strequal(refresh_token, _refresh_token)) {
+    if (strValid(refresh_token)) {  // only update, if the refresh token
+                                    // changes, not when
+                                    // it is initially obtained
+      syslog(LOG_AUTHPRIV | LOG_DEBUG,
+             "Updating refreshtoken for %s from '%s' to '%s'",
+             account_getName(a), refresh_token, _refresh_token);
+      oidcd_handleUpdateRefreshToken(pipes, account_getName(a), _refresh_token);
+    }
+    account_setRefreshToken(a, _refresh_token);
+  } else {
+    secFree(_refresh_token);
+  }
+
+  if (mode & TOKENPARSEMODE_ATS) {
+    account_setAccessToken(a, _access_token);
+    if (NULL != _expires_in) {
+      account_setTokenExpiresAt(a, time(NULL) + strToInt(_expires_in));
+      syslog(LOG_AUTHPRIV | LOG_DEBUG, "expires_at is: %lu\n",
+             account_getTokenExpiresAt(a));
+      secFree(_expires_in);
+    }
+  }
+  // TODO secFrees
+  if (mode & TOKENPARSEMODE_AT) {
+    return _access_token;
+  }
+  if (mode & TOKENPARSEMODE_IDT) {
+    account_setIdToken(a, _id_token);
+    return _id_token;
+  }
+  return NULL;
+}
+
+// TODO refactor / restructe this
+// TODO remove id_token storage
 char* parseTokenResponseCallbacks(
     const char* res, struct oidc_account* a, int saveAccessToken,
     void (*errorHandling)(const char*, const char*), struct ipcPipe pipes) {

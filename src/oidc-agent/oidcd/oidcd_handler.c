@@ -437,7 +437,7 @@ void oidcd_handleTokenIssuer(struct ipcPipe pipes, char* issuer,
     return;
   }
   ipc_writeToPipe(pipes, RESPONSE_STATUS_ACCESS, STATUS_SUCCESS, access_token,
-                  account_getIdToken(account), account_getIssuerUrl(account),
+                  account_getIssuerUrl(account),
                   account_getTokenExpiresAt(account));
   if (strValid(scope)) {
     secFree(access_token);
@@ -491,7 +491,7 @@ void oidcd_handleToken(struct ipcPipe pipes, char* short_name,
     return;
   }
   ipc_writeToPipe(pipes, RESPONSE_STATUS_ACCESS, STATUS_SUCCESS, access_token,
-                  account_getIdToken(account), account_getIssuerUrl(account),
+                  account_getIssuerUrl(account),
                   account_getTokenExpiresAt(account));
   if (strValid(scope)) {
     secFree(access_token);
